@@ -1,0 +1,125 @@
+%
+% 8.04 homework template
+%
+% NOTE:    Be sure to define your name with the \name command
+%
+\documentclass[12pt]{article}
+
+%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[dvips]{graphics,color}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{enumerate}
+\usepackage{amsthm}
+\usepackage{nccmath}
+\usepackage[margin=0.15in]{geometry}
+
+\numberwithin{equation}{section}
+\DeclareRobustCommand{\beginProtected}[1]{\begin{#1}}
+\DeclareRobustCommand{\endProtected}[1]{\end{#1}}
+\newcommand{\dbr}[1]{d_{\mbox{#1BR}}}
+\newtheorem{lemma}{Lemma}
+\newtheorem*{corollary}{Corollary}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newcommand{\column}[2]{
+\left( \begin{array}{ccc}
+#1 \\
+#2
+\end{array} \right)}
+\newcommand{\colt}[3]{
+\left[\begin{array}{ccc}
+#1\\
+#2\\
+#3
+\end{array}\right]}
+\newcommand{\twoMatrix}[4]{
+\left(\begin{array}{cc}
+#1 & #2 \\
+#3 & #4
+\end{array} \right)}
+
+\setlength{\parskip}{0pc}
+\setlength{\parindent}{10pt}
+\setlength{\topmargin}{-6pc}
+\setlength{\textheight}{10.0in}
+\setlength{\oddsidemargin}{-3pc}
+%\setlength{\evensidemargin}{1pc}
+\setlength{\textwidth}{7.5in}
+\newcommand{\answer}[1]{\newpage\noindent\framebox{\vbox{{\bf Problem Set 1} 
+\hfill {\bf \name}\\ {\bf 18.404 Fall 2012}  \hfill {\bf \today}\\ {\bf }\\ \vspace{-1cm}
+\begin{center}{Problem #1}\end{center} } }\bigskip }
+
+\def\dbar{{\mathchar'26\mkern-12mu d}}
+\def \Frac{\displaystyle\frac}
+\def \Sum{\displaystyle\sum}
+\def \Int{\displaystyle\int}
+\def \Prod{\displaystyle\prod}
+\def\squiggle{\sim}
+%\def \P[x]{\Frac{\partial}{\partial x}}
+%\def \D[x]{\Frac{d}{dx}}
+\newcommand{\PD}[2]{\frac{\partial#1}{\partial#2}}
+\newcommand{\PF}[1]{\frac{\partial}{\partial#1}}
+\newcommand{\DD}[2]{\frac{d#1}{d#2}}
+\newcommand{\DF}[1]{\frac{d}{d#1}}
+\newcommand{\fix}[2]{\left(#1\right)_#2}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle#1|}
+\newcommand{\braket}[2]{\langle #1 | #2 \rangle}
+\newcommand{\bopk}[3]{\langle #1 | #2 | #3 \rangle}
+\newcommand{\Choose}[2]{\displaystyle {#1 \choose #2}}
+\newcommand{\proj}[1]{\ket{#1}\bra{#1}}
+\def\del{\vec{\nabla}}
+\newcommand{\avg}[1]{\langle#1\rangle}
+\newcommand{\piecewise}[4]{\left\{\beginProtected{array}{rl}#1&:#2\\#3&:#4\endProtected{array}\right.}
+\def \KE{K\!E}
+\def\Godel{G$\ddot{\mbox{o}}$del}
+\newcommand{\al}[1]{\begin{align*}#1\end{align*}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\parens}[1]{\!\left(#1\right)}
+\newcommand{\braces}[1]{\!\left\{#1\right\}}
+\newcommand{\brackets}[1]{\!\left[#1\right]}
+\def\coder{\nabla}
+\def\tensor{\otimes}
+\def\gd{\mbox{d}}
+\def\k{\,\,\,}
+\usepackage{mathtools}
+\usepackage{slashed}
+
+\newcommand{\page}[1]{p.\nobreak\thinspace#1}
+\newcommand{\ppage}[2]{pp.\nobreak\thinspace#1--#2}
+
+\title{\large \vspace{-4ex}Project Proposal: Reducing the Effect of Pileup in High Energy Particle Colliders\vspace{-2ex}}
+\author{\large Aviv Cukierman and Max Zimet}
+\date{\vspace{-2ex}\today\vspace{-4ex}}
+\begin{document}
+\maketitle
+
+The Large Hadron Collider (LHC) is the largest science experiment ever built by man. Its main purpose is to search for new physics that is accessible at extremely high energies by colliding beams of protons. It has already observed the Higgs particle, and is now searching for additional new phenomena. In particular, physicists hope to find evidence for a theorized symmetry of nature, termed ``supersymmetry." This symmetry would require the existence of a large number of massive particles (``superparticles"), which, if they exist, would decay very rapidly, making them difficult to observe: we cannot see these new particles, and can only hope to detect the products of their decay. Further complicating the experiment is the fact that at accessible energies, superparticles are not expected to be produced with high probabilities. Therefore, millions of collisions are conducted every second, in the hope that a few interesting events will be observed. Thus, the experiment produces enormous amounts of data, most of which is the result of uninteresting already-well-understood physics. In addition, in order to increase the chances of producing interesting physics, multiple protons are collided together at the same time. This has the effect of superposing uninteresting data, or ``pileup", on top of the potentially interesting signal. The purpose of this project is to improve upon the current state of the art in eliminating the effect of pileup at high energy particle colliders like the LHC.
+
+The axis containing the incoming beams of protons is surrounded by the tracker and the calorimeter, which are measurement apparati that detect properties of outgoing particles. The tracker follows the paths of electrically charged particles which result from the scattering experiment, while the calorimeter, which is situated outside of the tracker, measures the energy of outgoing particles. With these measurements, we may calculate one of the most physically interesting quantities: the momentum of a particle transverse to the scattering axis, $p_t$. Actually, we are not interested in the $p_t$ of a particular outgoing particle, but rather of the original quark or gluon from which this particle originated. So, we need to identify which outgoing particles originated from a given quark or gluon, and sum their $p_t$ values. A group of outgoing particles which originated from the same quark or gluon is called a ``jet," and clustering algorithms which group outgoing particles into jets already exist\cite{ref:cacciari}. These are unsupervised learning algorithms, like $k$-means; however, unlike $k$-means, they are specifically designed for jet clustering. In particular, an important feature of these algorithms is that they are ``infrared safe," i.e., they are insensitive to the presence of extraneous data with small values of $p_t$. The reason this is important is the presence of pileup.
+
+Pileup is simply the result of proton-proton scatterings which do not produce interesting new physics. Jets whose charged component is comprised primarily of pileup can easily be eliminated, as we can associate measurements in the calorimeter with measurements from the tracker, in order to know which proton-proton scattering (or ``primary vertex") created the output; eliminating such jets is the job of the ``jet vertex tagger" (JVT)\cite{ref:atlasPileup}. However, the JVT does not account for contributions of pileup within interesting jets. Thus, to measure the $p_t$ of a jet, we need to subtract off the contribution from pileup. The current state of the art is simply to estimate the ``area" of a jet\cite{ref:cacciari2} and then to subtract off an estimate of the density of pileup times this area\cite{ref:cacciari3}. The background density is estimated by using a clustering algorithm that is not infrared safe: we find clusters which are comprised almost entirely of pileup and assume that the energy density of pileup at all angles is equal to the density of these clusters. While this is true on average, there are large fluctuations in the spatial distribution of pileup, which limits the efficacy of this technique.
+
+We hope to improve upon this algorithm, which we use as our baseline. The distribution of the reconstructed $p_t$ of the jet versus its truth $p_t$ has some non-zero width which makes it so that the measurement of the reconstructed jet is not entirely accurate. This has negative effects on physics analyses such as searches for supersymmetry. For example, if we are searching for a signal that requires there to be a certain number of jets above a certain $p_t$ threshold, we will sometimes throw out interesting data because we did not measure the $p_t$ of the jets properly. Because events with supersymmetric particles are theorized to be so rare, we do not want to have a low efficiency on (i.e., reject) events that might turn out to have proof of supersymmetry.\footnote{In 2012, the LHC discovered evidence for the Higgs particle from Higgs decays to two photons. This avoided the problems mentioned in this proposal, as photons do not form hadronic jets. Since then, hadronic evidence for the Higgs has been sought in Higgs to two bottom quark decays. This also avoids the issue of pileup because these decays produce few jets, so each jet is likely to have large $p_t$, making it unlikely that we will reject evidence of Higgs decays.}
+
+In particular, we hope to be able to determine the likelihood of particular outgoing particles being pileup or not, rather than simply subtracting off an average density. This is hard because jets sometimes include low $p_t$ contributions which are hard to differentiate from pileup. We then hope to use machine learning to further reduce the impact of remaining pileup inside of our modified jets.
+
+More specifically, we plan to devise a new clustering algorithm, which will be formulated as a search problem, where states are collections of particles that we have added to a jet, and actions are adding a new particle, or concluding the formation of the jet. We can feed the truth information about whether a particle in our training set is pileup or not into the structured perceptron algorithm to learn the costs for our search problem. In order for the search problem whose costs we learn to generalize to arbitrary jets, as opposed to simply working on our training set, we will have costs depend linearly on features, which will be functions of our states and actions.
+
+Once we have jets formed from solving this search problem, we will use standard machine learning regression techniques to find the truth $p_t$ of the reconstructed jet. We will use features like the $p_t$ of the reconstructed jet, the pileup background estimation used in the baseline, the original area of the jet found with standard jet clustering techniques, etc. We will judge the quality of this algorithm by how good the estimation of the $p_t$ of the jet is.
+
+Our training and test data has been developed by the simulation software Pythia.\footnote{We are unable to use actual experimental data, as one of the authors is not a member of the ATLAS collaboration. However, we suspect that the additional control over our data provided by simulation will enable us to develop a more effective algorithm.} In particular, the simulation generates superimposed clusters of interesting data and pileup, where the truth value (pileup or not) of each particle is known. The fact that we are generating our data from a physics simulation gives us a simple oracle -- the known truth values.
+
+\bibliographystyle{unsrt}
+\bibliography{../../../../cites}
+\end{document}

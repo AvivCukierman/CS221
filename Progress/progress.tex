@@ -1,0 +1,125 @@
+%
+% 8.04 homework template
+%
+% NOTE:    Be sure to define your name with the \name command
+%
+\documentclass[12pt]{article}
+
+%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%
+
+%\usepackage[dvips]{graphics,color}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{enumerate}
+\usepackage{amsthm}
+\usepackage{nccmath}
+%\usepackage[margin=0.15in]{geometry}
+
+\numberwithin{equation}{section}
+\DeclareRobustCommand{\beginProtected}[1]{\begin{#1}}
+\DeclareRobustCommand{\endProtected}[1]{\end{#1}}
+\newcommand{\dbr}[1]{d_{\mbox{#1BR}}}
+\newtheorem{lemma}{Lemma}
+\newtheorem*{corollary}{Corollary}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newcommand{\column}[2]{
+\left( \begin{array}{ccc}
+#1 \\
+#2
+\end{array} \right)}
+\newcommand{\colt}[3]{
+\left[\begin{array}{ccc}
+#1\\
+#2\\
+#3
+\end{array}\right]}
+\newcommand{\twoMatrix}[4]{
+\left(\begin{array}{cc}
+#1 & #2 \\
+#3 & #4
+\end{array} \right)}
+
+%\setlength{\parskip}{0pc}
+%\setlength{\parindent}{10pt}
+%\setlength{\topmargin}{-6pc}
+%\setlength{\textheight}{10.0in}
+%\setlength{\oddsidemargin}{-3pc}
+%\setlength{\evensidemargin}{1pc}
+%\setlength{\textwidth}{7.5in}
+\newcommand{\answer}[1]{\newpage\noindent\framebox{\vbox{{\bf Problem Set 1} 
+\hfill {\bf \name}\\ {\bf 18.404 Fall 2012}  \hfill {\bf \today}\\ {\bf }\\ \vspace{-1cm}
+\begin{center}{Problem #1}\end{center} } }\bigskip }
+
+\def\dbar{{\mathchar'26\mkern-12mu d}}
+\def \Frac{\displaystyle\frac}
+\def \Sum{\displaystyle\sum}
+\def \Int{\displaystyle\int}
+\def \Prod{\displaystyle\prod}
+\def\squiggle{\sim}
+%\def \P[x]{\Frac{\partial}{\partial x}}
+%\def \D[x]{\Frac{d}{dx}}
+\newcommand{\PD}[2]{\frac{\partial#1}{\partial#2}}
+\newcommand{\PF}[1]{\frac{\partial}{\partial#1}}
+\newcommand{\DD}[2]{\frac{d#1}{d#2}}
+\newcommand{\DF}[1]{\frac{d}{d#1}}
+\newcommand{\fix}[2]{\left(#1\right)_#2}
+\newcommand{\ket}[1]{|#1\rangle}
+\newcommand{\bra}[1]{\langle#1|}
+\newcommand{\braket}[2]{\langle #1 | #2 \rangle}
+\newcommand{\bopk}[3]{\langle #1 | #2 | #3 \rangle}
+\newcommand{\Choose}[2]{\displaystyle {#1 \choose #2}}
+\newcommand{\proj}[1]{\ket{#1}\bra{#1}}
+\def\del{\vec{\nabla}}
+\newcommand{\avg}[1]{\langle#1\rangle}
+\newcommand{\piecewise}[4]{\left\{\beginProtected{array}{rl}#1&:#2\\#3&:#4\endProtected{array}\right.}
+\def \KE{K\!E}
+\def\Godel{G$\ddot{\mbox{o}}$del}
+\newcommand{\al}[1]{\begin{align*}#1\end{align*}}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\norm}[1]{\left\|#1\right\|}
+\newcommand{\parens}[1]{\!\left(#1\right)}
+\newcommand{\braces}[1]{\!\left\{#1\right\}}
+\newcommand{\brackets}[1]{\!\left[#1\right]}
+\def\coder{\nabla}
+\def\tensor{\otimes}
+\def\gd{\mbox{d}}
+\def\k{\,\,\,}
+\usepackage{mathtools}
+\usepackage{slashed}
+
+\newcommand{\page}[1]{p.\nobreak\thinspace#1}
+\newcommand{\ppage}[2]{pp.\nobreak\thinspace#1--#2}
+
+\title{Project Progress Report: Reducing the Effect of Pileup in High Energy Particle Colliders}
+\author{\large Aviv Cukierman and Max Zimet}
+\date{\today}
+\begin{document}
+\maketitle
+
+Since submitting our project proposal, we have spent a fair amount of time generating simulation data (beyond what we already had when we wrote our proposal) and extracting useful information from this data. In particular, we realized that extracting specific truth data from the out-of-the-box anti-$k_t$ algorithm provided by \cite{ref:cacciari2} could be hard, or even infeasible. Therefore, we decided to implement the anti-$k_t$ algorithm ourselves. We have also played around with some of the parameters in this algorithm (such as the parameter $R$, which roughly represents how large we expect jets to be, and which is normally 0.4), and modified some of the algorithm's steps, in order to gain a better understanding of how each piece contributes to the algorithm's functioning. For instance, we investigated how the algorithm performed when we assumed protojets were massless.
+
+We have learned quite a bit about the metrics people desire in jet clustering algorithms. One example, output by our implementation of the anti-$k_t$ algorithm, is illustrated in figure \ref{fig:1}. (Although this graph may not look particularly Gaussian, we suspect that additional data will rectify this). This histogram not being centered about 0 is the result of the presence of pileup. If it were sharply peaked, we would be able to precisely subtract off the effect of pileup. Thus, we have decided to make reducing the width of this graph one of our specific goals. Once we are able to handle more data, we will be able to test these metrics on each of the different modified algorithms we mentioned above. We suspect that we will be able to learn more optimal choices of parameters than those that are currently in widespread use.
+\begin{figure}[h!]
+  \caption{Approximately Gaussian distribution used by \cite{ref:cacciari} to argue for the usefulness of the anti-$k_t$ algorithm.}\label{fig:1}
+  \centering
+    \includegraphics[width=\textwidth]{../Plots/offsets_hist}
+\end{figure}
+We are studying the implementation of the anti-$k_t$ algorithm in \cite{ref:cacciari2} in order to try to speed up our algorithm. We are also investigating the possibility of parallelizing our algorithm, so as to take advantage of batch computing resources.
+
+We have spent some time thinking about our proposal to replace the greedy anti-$k_t$ algorithm with a non-greedy search model, as well as with a variable-based model (since, as you suggested, the order in which we cluster particles into jets is not important, so a variable-based model seems the most intuitively natural). Unfortunately, the algorithms required to solve these problems may turn out to be computationally infeasible (since even the greedy anti-$k_t$ algorithm takes a significant amount of time with our current dataset, which is relatively small). Furthermore, learning the weights of these models may be computationally intensive. Nevertheless, since we have plenty of time before the project is due, and have a pretty good understanding of the greedy algorithm and the metrics against which we will be measuring our algorithms, we will investigate these methods of improving upon the anti-$k_t$ algorithm.
+
+As hinted at above, our ideal scenario would be to model this problem as a variable-based model. We would have one variable for each particle, whose value would be the label of the jet to which this particle is assigned. We would then attempt to solve this problem via a standard factor graph algorithm, such as Gibbs sampling.
+
+\nocite{ref:cacciari,ref:atlasPileup,ref:cacciari2,ref:cacciari3}
+
+\bibliographystyle{unsrt}
+\bibliography{../../../../cites}
+\end{document}

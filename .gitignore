@@ -1,0 +1,12 @@
+*.npy
+.project
+.pydevproject
+Dropbox
+fastjet-*
+*.aux
+*.log
+*.pdf
+*.gz
+*.bbl
+*.blg
+*.png
