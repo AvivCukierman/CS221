@@ -1,6 +1,6 @@
 import numpy
 
-event = 0
+event = 150
 
 jet_vars = numpy.load("../Data/jet_vars/jet_vars.npy")
 our_jet_vars = numpy.load("../Data/jet_vars/our_jet_vars_" + str(event) + ".npy")
@@ -13,14 +13,14 @@ stuffs = sorted([(jet_vars[event][j]['pt'], j) for j in range(len(jet_vars[event
 our_stuff = [our_jet_vars[0][j] for _,j in our_stuffs]
 stuff = [jet_vars[event][j] for _,j in stuffs]
 
-print [thing['pt'] for thing in stuff]
-print [thing['pt'] for thing in our_stuff]
+print [thing['pt'] for thing in stuff if abs(thing['eta']) < 2]
+print [thing['pt'] for thing in our_stuff if abs(thing['eta']) < 2]
 
-print [(thing['eta'],thing['phi']) for thing in stuff]
-print [(thing['eta'],thing['phi']) for thing in our_stuff]
+print [(thing['eta'],thing['phi']) for thing in stuff if abs(thing['eta']) < 2]
+print [(thing['eta'],thing['phi']) for thing in our_stuff if abs(thing['eta']) < 2]
 
-print [thing['m'] for thing in stuff]
-print [thing['m'] for thing in our_stuff]
+print [thing['m'] for thing in stuff if abs(thing['eta']) < 2]
+print [thing['m'] for thing in our_stuff if abs(thing['eta']) < 2]
 
 print [thing['area'] for thing in our_stuff]
 print [len(thing['particle_indices']) for thing in our_stuff]
