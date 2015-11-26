@@ -17,7 +17,6 @@ parser.add_option("--nevents", help="number of events to do", type=int, default=
 events = np.load(options.events)
 all_particles = np.load(options.inputParticles)
 
-e=0
 efficiencies = []
 multiple_matches_rates = []
 jetpts = []
