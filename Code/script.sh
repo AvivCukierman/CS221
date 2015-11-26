@@ -18,7 +18,7 @@
 #$ -tc 1000
 
 #combine output and error into output file, to reduce clutter
-#$ -j oe
+#$ -j y
 
 INDEX=$((SGE_TASK_ID-1))
 
