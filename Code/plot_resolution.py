@@ -26,14 +26,17 @@ def fitgaus(data,var,label,legend):
     #l = data.tolist()
     #data = array([ll for ll in l if ll<m+4*s])
     fig, ax = plt.subplots()
-    n,bins,patches = ax.hist(data,normed=True,bins=20)
+    binsize = 2.0
+    n,bins,patches = ax.hist(data,normed=True,bins = (max(data)-min(data))/binsize+1)
     #c = -0.1
     #(a,b,d) = genextreme.fit(data,c)
     #y = genextreme.pdf(bins,a,b,d)
     #plt.plot(bins,y,'r--',linewidth=2)
     ax.set_xlabel(label)
     ax.set_ylabel('a.u.')
-    ax.text(0.5, 0.5, legend, fontsize=16, verticalalignment='top', horizontalalignment='left', transform=fig.gca().transAxes)
+    ax.text(0.4, 0.95, legend, fontsize=16, verticalalignment='top', horizontalalignment='left', transform=fig.gca().transAxes)
+    ax.set_xlim(-5,40)
+    ax.set_ylim(0,.12)
     print var
     fig.savefig(options.plotDir+'/'+var+'_hist.png')
     plt.close()
