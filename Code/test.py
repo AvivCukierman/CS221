@@ -24,3 +24,21 @@ print [thing['m'] for thing in our_stuff]
 
 print [thing['area'] for thing in our_stuff]
 print [len(thing['particle_indices']) for thing in our_stuff]
+
+print 'Things not matched:'
+for thing in stuff:
+  matched = False
+  for our_thing in our_stuff:
+    if abs(thing['pt']-our_thing['pt'])<0.1 and abs(thing['eta']-our_thing['eta'])<0.1 and abs(thing['phi']-our_thing['phi'])<0.1: matched = True
+  if not matched:
+    print thing['pt'],thing['eta'],thing['phi']
+
+print 'Our things not matched:'
+for thing in our_stuff:
+  if abs(thing['eta'])>2: continue
+  if abs(thing['pt'])<5: continue
+  matched = False
+  for our_thing in stuff:
+    if abs(thing['pt']-our_thing['pt'])<0.1 and abs(thing['eta']-our_thing['eta'])<0.1 and abs(thing['phi']-our_thing['phi'])<0.1: matched = True
+  if not matched:
+    print thing['pt'],thing['eta'],thing['phi']
