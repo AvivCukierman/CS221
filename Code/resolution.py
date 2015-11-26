@@ -5,28 +5,35 @@ from operator import itemgetter
 parser = OptionParser()
 
 # job configuration
-parser.add_option("--submitDir", help="dir to store the output", default="output")
-parser.add_option("--inputParticles", help="input file containing particle vars", default="particle_vars.npy")
-parser.add_option("--inputJets", help="input file containing jet vars", default="jet_vars.npy")
-parser.add_option("--inputTJets", help="input file contaning truth jet vars", default="tjet_vars.npy")
-parser.add_option("--events", help="input file containing event vars", default="event_vars.npy")
-parser.add_option("--nevents", help="number of events to do", default=1)
+parser.add_option("--submitDir", help="dir to store the output", default="../Output")
+parser.add_option("--inputParticles", help="input file containing particle vars", default="../Data/particle_vars.npy")
+parser.add_option("--inputJets", help="input file containing jet vars", default="../Data/jet_vars")
+parser.add_option("--inputTJets", help="input file contaning truth jet vars", default="../Data/tjet_vars")
+parser.add_option("--events", help="input file containing event vars", default="../Data/event_vars.npy")
+parser.add_option("--nevents", help="number of events to do", type=int, default=1)
 
 (options, args) = parser.parse_args()
 
 events = np.load(options.events)
 all_particles = np.load(options.inputParticles)
-all_jets = np.load(options.inputJets)
-all_tjets = np.load(options.inputTJets)
 
-i=0
+e=0
 efficiencies = []
 multiple_matches_rates = []
 jetpts = []
 tjetpts = []
 offsets = []
 
-for event,particles,jets,tjets in zip(events,all_particles,all_jets,all_tjets):
+jet_filenames = [options.inputJets+'/our_jet_vars_'+str(i)+'.npy' for i in range(options.nevents)]
+tjet_filenames = [options.inputTJets+'/our_tjet_vars_'+str(i)+'.npy' for i in range(options.nevents)]
+
+for jet_filename,tjet_filename,event,particles in zip(jet_filenames,tjet_filenames,events,all_particles):
+  print jet_filename,tjet_filename
+  print len(particles)
+
+  jets = np.load(jet_filename)[0]
+  tjets = np.load(tjet_filename)[0]
+
   primary_particles = []
   for tjet_index,tjet in enumerate(tjets):
     particle_indices = tjet['particle_indices']
@@ -55,10 +62,6 @@ for event,particles,jets,tjets in zip(events,all_particles,all_jets,all_tjets):
     jetpts.append(jetpt)
     tjetpts.append(tjetpt)
     offsets.append(jetpt-tjetpt)
-
-
-  i+=1
-  if i>=options.nevents: break 
 
 np.save(options.submitDir+'/efficiencies.npy',np.array(efficiencies))
 np.save(options.submitDir+'/multiple_matches.npy',np.array(multiple_matches_rates))
