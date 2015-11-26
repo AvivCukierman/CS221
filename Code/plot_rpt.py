@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 parser = OptionParser()
 
 # job configuration
-parser.add_option("--plotDir", help="dir to store the output", default="plots")
-parser.add_option("--inputDir", help="dir where input is coming from", default="output")
+parser.add_option("--plotDir", help="dir to store the output", default="../Plots")
+parser.add_option("--inputDir", help="dir where input is coming from", default="../Output")
 parser.add_option("--inputChargedRpts", help="input file containing charged rpts", default="charged_rpts.npy")
 parser.add_option("--inputAllRpts", help="input file containing charged+uncharged rpts", default="all_rpts.npy")
 
