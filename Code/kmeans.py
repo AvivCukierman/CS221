@@ -130,7 +130,7 @@ for i, event in enumerate(particle_vars):
     if not truth: jets = numpy.load("../Data/jet_vars/our_jet_vars_"+str(i)+".npy")[0] #use antikt jets as wet start
     else: jets = numpy.load("../Data/tjet_vars/our_tjet_vars_"+str(i)+".npy")[0] #use antikt jets as wet start
 
-    for it in range(5):
+    for _ in range(5):
       #E? step
       newjets = []
       for jet in jets:
@@ -146,7 +146,8 @@ for i, event in enumerate(particle_vars):
           if truth and not particle['truth']:
               continue
 
-          dists = [deltaIJSquared(y(particle['eta'],particle['m'],particle['pt']),particle['phi'],y(jet['eta'],jet['m'],jet['pt']),jet['phi']) for jet in jets]
+          #dists = [deltaIJSquared(y(particle['eta'],particle['m'],particle['pt']),particle['phi'],y(jet['eta'],jet['m'],jet['pt']),jet['phi']) for jet in jets]
+          dists = [distIJ(particle['pt'],particle['eta'],particle['phi'],particle['m'],jet['pt'],jet['eta'],jet['phi'],jet['m']) for jet in jets]
           min_index = min(enumerate(dists), key=operator.itemgetter(1))[0]
           jets[min_index]['particle_indices'].append(i)
 
