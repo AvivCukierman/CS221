@@ -64,6 +64,9 @@ def deltaIJSquared(yI, phiI, yJ, phiJ):
     phiDiff = abs(phiI - phiJ)
     return (yI-yJ)**2 + min(phiDiff, 2*math.pi - phiDiff)**2
 
+def deltaIJSquared_particles(p1,p2):
+    return deltaIJSquared(y(p1['eta'],p1['m'],p1['pt']),p1['phi'],y(p2['eta'],p2['m'],p2['pt']),p2['phi'])
+
 def distIJ(ptI, etaI, phiI, mI, ptJ, etaJ, phiJ, mJ):
     #for now, using eta's instead of y's. maybe not good approximation if m's are non-negligible
 #    return min(modifiedPT(ptI), modifiedPT(ptJ)) * deltaIJSquared(etaI, phiI, etaJ, phiJ)/R**2
@@ -130,16 +133,21 @@ for i, event in enumerate(particle_vars):
     if not truth: jets = numpy.load("../Data/jet_vars/our_jet_vars_"+str(i)+".npy")[0] #use antikt jets as wet start
     else: jets = numpy.load("../Data/tjet_vars/our_tjet_vars_"+str(i)+".npy")[0] #use antikt jets as wet start
 
-    for _ in range(5):
+    converged = False
+    num_iter = 0
+    while not converged:
+      print num_iter
+      num_iter+=1
       #E? step
       newjets = []
+      converged = True
       for jet in jets:
         if len(jet['particle_indices'])>0:
           newjet_pt,newjet_eta,newjet_phi,newjet_m = combine_all([particle for i,particle in enumerate(event) if i in jet['particle_indices']])
           newjet = {'pt':newjet_pt,'eta':newjet_eta,'phi':newjet_phi,'m':newjet_m,'particle_indices':[]}
           newjets.append(newjet)
+          if deltaIJSquared_particles(jet,newjet)+(jet['pt']-newjet['pt'])**2>0.1 or num_iter==1: converged=False
       jets = newjets
-      print jets[0:2]
 
       #M? step
       for i, particle in enumerate(event):
@@ -148,7 +156,7 @@ for i, event in enumerate(particle_vars):
 
           dists = []
           for jet in jets:
-            if deltaIJSquared(y(particle['eta'],particle['m'],particle['pt']),particle['phi'],y(jet['eta'],jet['m'],jet['pt']),jet['phi'])>R**2: dists.append(float('Inf')) # keep jet ordering 
+            if deltaIJSquared_particles(particle,jet)>R**2: dists.append(float('Inf')) # keep jet ordering, keep jets of size < R^2
             else: dists.append(distIJ(particle['pt'],particle['eta'],particle['phi'],particle['m'],jet['pt'],jet['eta'],jet['phi'],jet['m']))
           min_index = min(enumerate(dists), key=operator.itemgetter(1))[0]
           jets[min_index]['particle_indices'].append(i)
