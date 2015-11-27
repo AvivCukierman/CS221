@@ -153,11 +153,8 @@ for i, event in enumerate(particle_vars):
           min_index = min(enumerate(dists), key=operator.itemgetter(1))[0]
           jets[min_index]['particle_indices'].append(i)
 
-
-
-    
-'''if truth:
-    numpy.save("../Data/tjet_vars/our_tjet_vars_"+str(eventNum)+".npy", jets)                
+if truth:
+    numpy.save("../Data/kmeans_tjets/our_tjet_vars_"+str(eventNum)+".npy", jets)                
 else:
-    numpy.save("../Data/jet_vars/our_jet_vars_"+str(eventNum)+".npy", jets) 
-'''
+    numpy.save("../Data/kmeans_jets/our_jet_vars_"+str(eventNum)+".npy", jets) 
+
