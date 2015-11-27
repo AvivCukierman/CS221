@@ -146,8 +146,10 @@ for i, event in enumerate(particle_vars):
           if truth and not particle['truth']:
               continue
 
-          #dists = [deltaIJSquared(y(particle['eta'],particle['m'],particle['pt']),particle['phi'],y(jet['eta'],jet['m'],jet['pt']),jet['phi']) for jet in jets]
-          dists = [distIJ(particle['pt'],particle['eta'],particle['phi'],particle['m'],jet['pt'],jet['eta'],jet['phi'],jet['m']) for jet in jets]
+          dists = []
+          for jet in jets:
+            if deltaIJSquared(y(particle['eta'],particle['m'],particle['pt']),particle['phi'],y(jet['eta'],jet['m'],jet['pt']),jet['phi'])>R**2: dists.append(float('Inf')) # keep jet ordering 
+            else: dists.append(distIJ(particle['pt'],particle['eta'],particle['phi'],particle['m'],jet['pt'],jet['eta'],jet['phi'],jet['m']))
           min_index = min(enumerate(dists), key=operator.itemgetter(1))[0]
           jets[min_index]['particle_indices'].append(i)
 
