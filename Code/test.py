@@ -1,6 +1,6 @@
 import numpy
 
-event = 150
+event = 0
 
 jet_vars = numpy.load("../Data/jet_vars/jet_vars.npy")
 our_jet_vars = numpy.load("../Data/jet_vars/our_jet_vars_" + str(event) + ".npy")
@@ -22,8 +22,10 @@ print [(thing['eta'],thing['phi']) for thing in our_stuff if abs(thing['eta']) <
 print [thing['m'] for thing in stuff if abs(thing['eta']) < 2]
 print [thing['m'] for thing in our_stuff if abs(thing['eta']) < 2]
 
-print [thing['area'] for thing in our_stuff]
-print [len(thing['particle_indices']) for thing in our_stuff]
+print [thing['area'] for thing in stuff if abs(thing['eta'])  < 2]
+print [thing['area'] for thing in our_stuff if abs(thing['eta'])  < 2]
+
+print [len(thing['particle_indices']) for thing in our_stuff if abs(thing['eta']) < 2]
 
 print 'Things not matched:'
 for thing in stuff:

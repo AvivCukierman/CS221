@@ -1,19 +1,31 @@
-import math, numpy, copy, sys
+import math, numpy, copy, sys, random
 from Queue import PriorityQueue
 from optparse import OptionParser
+from scipy.weave.converters import default
 
+#Can get help messages with -h or --help
 parser = OptionParser()
 parser.add_option("-t", "--truth", action="store_true", default=False, help="restrict to only truth = TRUE")
-parser.add_option("-e", "--event", default=0)
-parser.add_option("-d", "--debug", action="store_true", default=False)
-parser.add_option("-x", "--exclusive", action="store_true", default=False)
+parser.add_option("-e", "--event", default=0, help="which event do we run anti-kt on?", type="int")
+parser.add_option("-d", "--debug", action="store_true", default=False, help="debug output")
+parser.add_option("-x", "--exclusive", action="store_true", default=False, help="exclusive variant of anti-kt. not recommended")
+parser.add_option("-a", "--area", action="store_true", default=False, help="compute active areas")
+parser.add_option("-n", "--eta-cutoff", type="float", default=-1, help="If positive, only store jets with |eta| below this cutoff")
+#parser.add_option("-g", "--explicit-ghosts", action="store_true", default=False, help="if we compute active areas, include ghosts in output jets and "+
+#                                                                                "allow jets consisting entirely of ghosts")
 options, args = parser.parse_args()
 
 truth = options.truth
-eventNum = int(options.event)
+eventNum = options.event
 debug = options.debug
 exclusive = options.exclusive
 inclusive = not exclusive
+area = options.area
+eta_cutoff = options.eta_cutoff
+#explicit_ghosts = options.explicit_ghosts
+
+#if (not area) and explicitGhosts:
+#    parser.error("Ghosts are not present if we are not computing jet areas.")
 
 # Each file is a numpy array that should have N = 1000 entries, which is the number of events we can use for now
 # 
@@ -55,6 +67,25 @@ def modifiedPT(pt):
 R = 0.4 if inclusive else 1.0
 ptCut = 6.0
 dCut = modifiedPT(ptCut)
+ghost_area = 0.01
+grid_scatter = 1e-4
+pt_scatter = 0.1
+mean_ghost_pt = 1e-100
+ghost_max_rapidity = 3.0 #maybe increase to 6 if had more computation time
+
+twopi = 2*math.pi
+
+#definitions from FastJet
+drap = math.sqrt(ghost_area)
+dphi = drap #rectangular grid in eta, phi space. note that eta is basically same as y, since ghosts' masses are small
+nphi = int(math.ceil(twopi/dphi))
+dphi = twopi/nphi
+nrap = int(math.ceil(ghost_max_rapidity/drap))
+drap = ghost_max_rapidity / nrap
+actual_ghost_area = dphi * drap
+n_ghosts = (2*nrap+1)*nphi
+
+if debug: print n_ghosts
 
 def y(eta, m, pt):
     #pz is signed, pL unsigned
@@ -68,7 +99,7 @@ def y(eta, m, pt):
 
 def deltaIJSquared(yI, phiI, yJ, phiJ):
     phiDiff = abs(phiI - phiJ)
-    return (yI-yJ)**2 + min(phiDiff, 2*math.pi - phiDiff)**2
+    return (yI-yJ)**2 + min(phiDiff, twopi - phiDiff)**2
 
 def distIJ(ptI, etaI, phiI, mI, ptJ, etaJ, phiJ, mJ):
     #for now, using eta's instead of y's. maybe not good approximation if m's are non-negligible
@@ -95,7 +126,7 @@ for i, event in enumerate(particle_vars):
             continue
         
         pseudojets[i] = particle
-        pseudojets[i]['ghostNumber'] = 1
+        pseudojets[i]['ghostNumber'] = 0
         pseudojets[i]['particles'] = [i]
         diB.put((modifiedPT(particle['pt']), i))
 #        diB[i] = modifiedPT(particle['pt'])
@@ -111,6 +142,35 @@ for i, event in enumerate(particle_vars):
                 dIJ.put((distIJ(particle['pt'], particle['eta'], particle['phi'], particle['m'],
                                otherParticle['pt'], otherParticle['eta'], otherParticle['phi'], otherParticle['m']),
                          (i,j)))
+    
+    if area:
+        for irap in range(-nrap, nrap+1):
+            for iphi in range(nphi):
+                pt = mean_ghost_pt * (1 + random.uniform(0, 1) * pt_scatter)
+                phi = (iphi + 0.5) * dphi + dphi * random.uniform(0, 1) * grid_scatter
+                if phi < 0:
+                    phi += twopi
+                if phi > twopi:
+                    phi -= twopi
+                eta = irap * drap + drap * random.uniform(0, 1) * grid_scatter
+                m = 0.0
+
+                diB.put((modifiedPT(pt), nextPseudojetIndex))
+    
+                for k in pseudojets:
+                    pseudojet = pseudojets[k]
+                    dIJ.put((distIJ(pt, eta, phi, m,
+                                    pseudojet['pt'], pseudojet['eta'], pseudojet['phi'], pseudojet['m']),
+                             (k, nextPseudojetIndex)))
+
+                pseudojets[nextPseudojetIndex] = {'ghostNumber': 1, 'particles': [],
+                                 'phi': phi,
+                                 'eta': eta,
+                                 'pt': pt,
+                                 'm': m}
+
+                nextPseudojetIndex += 1
+
 
     while len(pseudojets) > 0:
         if debug: print len(pseudojets)
@@ -159,9 +219,11 @@ for i, event in enumerate(particle_vars):
             
             diB.get()
             newJet = pseudojets[minI]
-            if inclusive:
+            #this second condition makes sure we don't count pseudojets as jets if they're 100% ghosts:
+            if inclusive and len(newJet['particles']) > 0 and (eta_cutoff < 0 or abs(newJet['eta']) < eta_cutoff):
                 jets_in_event.append({'pt': newJet['pt'], 'eta': newJet['eta'], 'phi': newJet['phi'], 'm': newJet['m'], 
-                                      'area': newJet['ghostNumber'], 'width': None, 'particle_indices': newJet['particles']})
+                                      'area': newJet['ghostNumber'] * actual_ghost_area, 'width': None, 
+                                      'particle_indices': newJet['particles']})
             del pseudojets[minI]
 #            del dIJ[minI]
 #            del diB[minI]
@@ -224,12 +286,12 @@ for i, event in enumerate(particle_vars):
                 if s >= 0:
                     newPhi = math.asin(s)
                 else:
-                    newPhi = 2*math.pi + math.asin(s)
+                    newPhi = twopi + math.asin(s)
             else:
                 if s >= 0:
                     newPhi = math.acos(c)
                 else:
-                    newPhi = 2*math.pi - math.acos(c)
+                    newPhi = twopi - math.acos(c)
             
             #different scheme
 #            newEtaPrime = (ptI * etaI + ptJ * etaJ) / newPT
@@ -280,7 +342,9 @@ for i, event in enumerate(particle_vars):
             
     if not inclusive:
         for i in pseudojets:
-            jets_in_event.append(pseudojets[i])
+            pseudojet = pseudojets[i]
+            if len(pseudojet['particles']) > 0 and (eta_cutoff < 0 or abs(pseudojet['eta']) < eta_cutoff):
+                jets_in_event.append(pseudojets[i])
     jets.append(jets_in_event)
     
 if truth:
