@@ -1,7 +1,6 @@
 import math, numpy, copy, sys, random
 from Queue import PriorityQueue
 from optparse import OptionParser
-from scipy.weave.converters import default
 
 #Can get help messages with -h or --help
 parser = OptionParser()
