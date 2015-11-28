@@ -22,7 +22,7 @@
 
 INDEX=$((SGE_TASK_ID-1))
 
-python anti-kt.py -e $INDEX
-python anti-kt.py -t -e $INDEX
+python anti-kt.py -a -e $INDEX
+python anti-kt.py -t -a -e $INDEX
 
 #echo $INDEX
