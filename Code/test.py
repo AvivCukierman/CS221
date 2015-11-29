@@ -1,6 +1,6 @@
 import numpy
 
-event = 1
+event = 0
 
 jet_vars = numpy.load("../Data/jet_vars/jet_vars.npy")
 our_jet_vars = numpy.load("../Data/jet_vars/our_jet_vars_" + str(event) + ".npy")

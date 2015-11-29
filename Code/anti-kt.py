@@ -66,7 +66,7 @@ def modifiedPT(pt):
 R = 0.4 if inclusive else 1.0
 ptCut = 6.0
 dCut = modifiedPT(ptCut)
-ghost_area = 0.01
+ghost_area = 0.01 #if this is larger then this program is faster but less accurate. Doesn't seem to work well above 0.01
 grid_scatter = 1e-4
 pt_scatter = 0.1
 mean_ghost_pt = 1e-100
