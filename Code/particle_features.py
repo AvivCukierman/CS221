@@ -130,8 +130,8 @@ for i, particles in enumerate(particle_vars):
             ydiff = deltaY(p,particle)
             if ydiff<rmin or ydiff>rmax: continue
             phidiff = deltaPhi(p,particle)
-            if phidiff<rmin or ydiff>rmax: continue
-            dr = math.sqrt(phidiff**2+ydiff**2<rmin**2)
+            if phidiff<rmin or phidiff>rmax: continue
+            dr = math.sqrt(phidiff**2+ydiff**2)
             if dr>rmin and dr<rmax:
               puppi+=p['pt']/dr
           featurename = 'puppi'+str(int(rmin*10))+str(int(rmax*10))
