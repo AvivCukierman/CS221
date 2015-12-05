@@ -3,8 +3,8 @@ from optparse import OptionParser
 import operator 
 
 parser = OptionParser()
-parser.add_option("-e", "--events", help='How many events to do for training and testing', default=10)
-parser.add_option("-i", "--iterations", help='How many iterations to do SGD', default=10)
+parser.add_option("-e", "--events",type=int, help='How many events to do for training and testing', default=10)
+parser.add_option("-i", "--iterations",type=int, help='How many iterations to do SGD', default=10)
 parser.add_option("-d", "--debug", action="store_true", default=False)
 options, args = parser.parse_args()
 
@@ -55,11 +55,15 @@ def SGDupdate(w,eta,y,phi):
     w[k] += eta*y*phi[k]
 
 
-features = numpy.load("../Data/particle_features/particle_features_0.npy")[0].keys()
+particles_features = numpy.load("../Data/particle_features/particle_features_0.npy")
+features = particles_features[0].keys()
+maxvalue = {k:max([abs(particle_features[k]) for particle_features in particles_features]) for k in features}
+for k in features:
+  if maxvalue[k] == 0: maxvalue[k]=1 #if they're all zero, doesn't matter
 w = {k:0 for k in features}
 
 import pdb
-eta = 1
+eta = 0.1
 for it in range(options.iterations):
   for i, particles in enumerate(particle_vars):
     if i==numEvents: break
@@ -67,9 +71,10 @@ for it in range(options.iterations):
     trainError = 0
     #print float(len([particle_features for particle_features in particles_features if particles[particle_features['index']]['truth']==1]))/len(particles_features)
     for particle_features in particles_features:
+      norm_particle_features = {k: float(particle_features[k])/maxvalue[k] for k in features}
       particle = particles[particle_features['index']]
       prediction = dotProduct(w,particle_features)
-      y = 1 if particle['truth']==1 else -1
+      y = 5 if particle['truth']==1 else -1
       margin = prediction*y
       if margin<0: trainError+=1
       #hinge loss
@@ -87,14 +92,29 @@ for i,_ in enumerate(particle_vars):
 
   particles_features = numpy.load("../Data/particle_features/particle_features_"+str(i)+".npy") #only look at particles within high pT jets
   testError = 0
+  truthFraction = 0
+  testHSError = 0
+  testPUError = 0
   for particle_features in particles_features:
     particle = particles[particle_features['index']]
     prediction = dotProduct(w,particle_features)
     y = 1 if particle['truth']==1 else -1
+    if y>0: truthFraction +=1
     margin = prediction*y
-    if margin<0: testError+=1
-  testError = float(testError)/len(particles_features)
-  print testError
+    if margin<0: 
+      testError+=1
+      if y>0: testHSError+=1
+      else: testPUError+=1
+  numParticles = len(particles_features)
+  testError = float(testError)/numParticles
+  testHSError = float(testHSError)/truthFraction
+  testPUError = float(testPUError)/(numParticles - truthFraction)
+  truthFraction = float(truthFraction)/numParticles
+  print "testError:" + str(testError)
+  print "testHSError:" + str(testHSError)
+  print "testPUError:" + str(testPUError)
+  print "truthFraction:" + str(truthFraction)
+  print '\n'
 
 
 #numpy.save("../Data/particle_features/particle_features_"+str(eventNum)+".npy", newparticles) 
