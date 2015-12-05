@@ -1,6 +1,7 @@
 import math, numpy, copy, sys
 from optparse import OptionParser
 import operator 
+import json
 
 parser = OptionParser()
 parser.add_option("-e", "--events",type=int, help='How many events to do for training and testing', default=10)
@@ -84,9 +85,10 @@ for it in range(options.iterations):
       if margin>1: continue
       else: SGDupdate(w,eta,y,particle_features)
     trainError = float(trainError)/len(particles_features)
-    print trainError
+    #print trainError
 
-print '\n'
+with open('../Output/weights_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'.json','w') as g:
+  json.dump(w,g)
 
 f = open('../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'.txt','w')
 for i,_ in enumerate(particle_vars):
@@ -114,11 +116,11 @@ for i,_ in enumerate(particle_vars):
   testHSError = float(testHSError)/truthFraction
   testPUError = float(testPUError)/(numParticles - truthFraction)
   truthFraction = float(truthFraction)/numParticles
-  print "testError:" + str(testError)
-  print "testHSError:" + str(testHSError)
-  print "testPUError:" + str(testPUError)
-  print "truthFraction:" + str(truthFraction)
-  print '\n'
+  #print "testError:" + str(testError)
+  #print "testHSError:" + str(testHSError)
+  #print "testPUError:" + str(testPUError)
+  #print "truthFraction:" + str(truthFraction)
+  #print '\n'
 
   f.write('testError:' + str(testError)+'\n')
   f.write('testHSError:' + str(testHSError)+'\n')
