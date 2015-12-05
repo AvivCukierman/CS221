@@ -5,6 +5,7 @@ import operator
 parser = OptionParser()
 parser.add_option("-e", "--events",type=int, help='How many events to do for training and testing', default=10)
 parser.add_option("-i", "--iterations",type=int, help='How many iterations to do SGD', default=10)
+parser.add_option("-x", "--hs_factor",type=int, help='How much more we care about getting HS wrong than PU', default=200)
 parser.add_option("-d", "--debug", action="store_true", default=False)
 options, args = parser.parse_args()
 
@@ -51,8 +52,10 @@ def dotProduct(v1,v2):
   return result
 
 def SGDupdate(w,eta,y,phi):
+  extra_penalty = 0.1
+  if y==1: extra_penalty*=options.hs_factor
   for k in phi.keys():
-    w[k] += eta*y*phi[k]
+    w[k] += eta*y*extra_penalty*phi[k]
 
 
 particles_features = numpy.load("../Data/particle_features/particle_features_0.npy")
@@ -63,8 +66,8 @@ for k in features:
 w = {k:0 for k in features}
 
 import pdb
-eta = 0.1
 for it in range(options.iterations):
+  eta = 20./numEvents/(it+1)
   for i, particles in enumerate(particle_vars):
     if i==numEvents: break
     particles_features = numpy.load("../Data/particle_features/particle_features_"+str(i)+".npy") #only look at particles within high pT jets
@@ -74,7 +77,7 @@ for it in range(options.iterations):
       norm_particle_features = {k: float(particle_features[k])/maxvalue[k] for k in features}
       particle = particles[particle_features['index']]
       prediction = dotProduct(w,particle_features)
-      y = 5 if particle['truth']==1 else -1
+      y = 1 if particle['truth']==1 else -1
       margin = prediction*y
       if margin<0: trainError+=1
       #hinge loss
@@ -85,6 +88,7 @@ for it in range(options.iterations):
 
 print '\n'
 
+f = open('../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'.txt','w')
 for i,_ in enumerate(particle_vars):
   i+=numEvents
   if i==2*numEvents: break
@@ -116,6 +120,9 @@ for i,_ in enumerate(particle_vars):
   print "truthFraction:" + str(truthFraction)
   print '\n'
 
+  f.write('testError:' + str(testError)+'\n')
+  f.write('testHSError:' + str(testHSError)+'\n')
+  f.write('testPUError:' + str(testPUError)+'\n')
+  f.write('truthFraction:' + str(truthFraction)+'\n'+'\n')
 
-#numpy.save("../Data/particle_features/particle_features_"+str(eventNum)+".npy", newparticles) 
-
+f.close()
