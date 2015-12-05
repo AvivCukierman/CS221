@@ -78,7 +78,7 @@ for i, particles in enumerate(particle_vars):
   jets = numpy.load("../Data/jet_vars/our_jet_vars_"+str(i)+".npy")[0] #only look at particles within high pT jets
   newparticles = []
   for jet in jets:
-    print jet
+    #print jet
     if jet['pt']<20: continue
     if len(jet['particle_indices'])==0: continue
     for particle_index in jet['particle_indices']:
@@ -126,25 +126,27 @@ for i, particles in enumerate(particle_vars):
 
         for rmax in numpy.arange(rmin+0.1,0.41,0.1):
           puppi=0
-          for p in particles:
+          for i,p in enumerate(particles):
             ydiff = deltaY(p,particle)
-            if ydiff<rmin or ydiff>rmax: continue
+            if ydiff>rmax: continue
             phidiff = deltaPhi(p,particle)
-            if phidiff<rmin or phidiff>rmax: continue
+            if phidiff>rmax: continue
             dr = math.sqrt(phidiff**2+ydiff**2)
             if dr>rmin and dr<rmax:
               puppi+=p['pt']/dr
+              print dr,p['pt'],rmin,rmax,i
           featurename = 'puppi'+str(int(rmin*10))+str(int(rmax*10))
           newparticle[featurename] = puppi
           alphapuppi = math.log(puppi) if puppi>0 else -float('Inf')
           for alphamin in numpy.linspace(0,10,6):
-            newparticle['alpha'+featurename+'gt'+str(alphamin)] = int(alphapuppi>alphamin)
-
-
+            newparticle['alpha'+featurename+'gt'+str(int(alphamin))] = int(alphapuppi>alphamin)
 
       newparticles.append(newparticle)
+      features = newparticle.keys()
+      features.sort()
+      for k in features: print k,newparticle[k]
+      break
 
-print newparticles 
+#print newparticles 
 
-numpy.save("../Data/particle_features/particle_features_"+str(eventNum)+".npy", newparticles) 
-
+#numpy.save("../Data/particle_features/particle_features_"+str(eventNum)+".npy", newparticles) 
