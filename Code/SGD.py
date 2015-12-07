@@ -58,12 +58,9 @@ def SGDupdate(w,eta,y,phi):
   for k in phi.keys():
     w[k] += eta*y*extra_penalty*phi[k]
 
-
-particles_features = numpy.load("../Data/particle_features/particle_features_0.npy")
-features = particles_features[0].keys()
-maxvalue = {k:max([abs(particle_features[k]) for particle_features in particles_features]) for k in features}
-for k in features:
-  if maxvalue[k] == 0: maxvalue[k]=1 #if they're all zero, doesn't matter
+with open('feature_normalization.json') as f:
+  norm = json.load(f) 
+features = norm.keys()
 w = {k:0 for k in features}
 
 import pdb
@@ -75,21 +72,22 @@ for it in range(options.iterations):
     trainError = 0
     #print float(len([particle_features for particle_features in particles_features if particles[particle_features['index']]['truth']==1]))/len(particles_features)
     for particle_features in particles_features:
-      norm_particle_features = {k: float(particle_features[k])/maxvalue[k] for k in features}
+      norm_particle_features = {k: float(particle_features[k])/norm[k] for k in features}
       particle = particles[particle_features['index']]
-      prediction = dotProduct(w,particle_features)
+      prediction = dotProduct(w,norm_particle_features)
       y = 1 if particle['truth']==1 else -1
       margin = prediction*y
       if margin<0: trainError+=1
       #hinge loss
       if margin>1: continue
-      else: SGDupdate(w,eta,y,particle_features)
+      else: SGDupdate(w,eta,y,norm_particle_features)
     trainError = float(trainError)/len(particles_features)
     #print trainError
 
 with open('../Output/weights_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'.json','w') as g:
   json.dump(w,g)
 
+print '../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'.txt'
 f = open('../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'.txt','w')
 for i,_ in enumerate(particle_vars):
   i+=numEvents
@@ -102,8 +100,9 @@ for i,_ in enumerate(particle_vars):
   testHSError = 0
   testPUError = 0
   for particle_features in particles_features:
+    norm_particle_features = {k: float(particle_features[k])/norm[k] for k in features}
     particle = particles[particle_features['index']]
-    prediction = dotProduct(w,particle_features)
+    prediction = dotProduct(w,norm_particle_features)
     y = 1 if particle['truth']==1 else -1
     if y>0: truthFraction +=1
     margin = prediction*y
