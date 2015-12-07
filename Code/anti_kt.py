@@ -52,12 +52,6 @@ eta_cutoff = options.eta_cutoff
 # tjet_vars.npy:
 # The same as jet_vars.npy, but this time jet finding was only run on particles with 'truth'==1.
 
-#event_vars = numpy.load("../Data/event_vars.npy")
-#jet_vars = numpy.load("../Data/jet_vars.npy")
-particle_vars = numpy.load("../Data/particle_vars.npy")
-#sjet_vars = numpy.load("../Data/sjet_vars.npy")
-#tjet_vars = numpy.load("../Data/tjet_vars.npy")
-
 if debug: print len(particle_vars)
 
 def modifiedPT(pt):
@@ -121,7 +115,8 @@ def antikt_algorithm(event):
         
         pseudojets[i] = particle
         pseudojets[i]['ghostNumber'] = 0
-        pseudojets[i]['particles'] = [i]
+        if 'index' in particle: pseudojets[i]['particles'] = [particle['index']] #if using a subset of particles, can still match back to original list
+        else: pseudojets[i]['particles'] = [i]
         diB.put((modifiedPT(particle['pt']), i))
 #        diB[i] = modifiedPT(particle['pt'])
 #        dIJ[i] = {}
@@ -341,17 +336,28 @@ def antikt_algorithm(event):
                 jets_in_event.append(pseudojets[i])
     return jets_in_event
 
-num_events = len(particle_vars)
-jets = []
-for i, event in enumerate(particle_vars):
-    if i != eventNum:
-        continue
+def main():
+  #event_vars = numpy.load("../Data/event_vars.npy")
+  #jet_vars = numpy.load("../Data/jet_vars.npy")
+  particle_vars = numpy.load("../Data/particle_vars.npy")
+  #sjet_vars = numpy.load("../Data/sjet_vars.npy")
+  #tjet_vars = numpy.load("../Data/tjet_vars.npy")
 
-    jets_in_event = antikt_algorithm(event)
-    jets.append(jets_in_event)
 
-    
-if truth:
-    numpy.save("../Data/tjet_vars/our_tjet_vars_"+str(eventNum)+"_new.npy", jets)                
-else:
-    numpy.save("../Data/jet_vars/our_jet_vars_"+str(eventNum)+"_new.npy", jets)                
+  num_events = len(particle_vars)
+  jets = []
+  for i, event in enumerate(particle_vars):
+      if i != eventNum:
+          continue
+
+      jets_in_event = antikt_algorithm(event)
+      jets.append(jets_in_event)
+
+      
+  if truth:
+      numpy.save("../Data/tjet_vars/our_tjet_vars_"+str(eventNum)+"_new.npy", jets)                
+  else:
+      numpy.save("../Data/jet_vars/our_jet_vars_"+str(eventNum)+"_new.npy", jets)                
+
+if __name__ == "__main__":
+      main()
