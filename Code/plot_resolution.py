@@ -53,15 +53,30 @@ def fitgaus(data,var,label,legend):
     print sigma,var
     fig.savefig(options.plotDir+'/'+var+'_hist.png')
     plt.close()
-    return 0
+    return mu,sigma
 
-for mintpt in range(10,200,10):
+ptbins = range(10,200,10)
+offset_means = {p:0 for p in ptbins}
+offset_sigmas = {p:0 for p in ptbins}
+response_means = {p:0 for p in ptbins}
+response_sigmas = {p:0 for p in ptbins}
+for mintpt in ptbins:
 #for mintpt in [20]:
   indices = [i for i,tpt in enumerate(tjetpts) if mintpt<tpt and mintpt+10>tpt]
   #indices = [i for i,tpt in enumerate(tjetpts) if mintpt<tpt and mintpt+180>tpt]
   legend = str(mintpt)+' GeV < truth jet pT < '+ str(mintpt+10)+ ' GeV'
   if len(indices)>0:
-    fitgaus([offsets[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'offsets'+str(mintpt)+str(mintpt+10),'Offsets (reconstructed jet pT - truth jet pT)',legend)
-    fitgaus([responses[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'responses'+str(mintpt)+str(mintpt+10),'Response (reconstructed jet pT / truth jet pT)',legend)
+    (offset_means[mintpt],offset_sigmas[mintpt])=fitgaus([offsets[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'offsets'+str(mintpt)+str(mintpt+10),'Offsets (reconstructed jet pT - truth jet pT)',legend)
+    (response_means[mintpt],response_sigmas[mintpt])=fitgaus([responses[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'responses'+str(mintpt)+str(mintpt+10),'Response (reconstructed jet pT / truth jet pT)',legend)
     #fitgaus([offsets[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'offsets'+str(mintpt)+str(mintpt+180),'Offsets (reconstructed jet pT - truth jet pT)',legend)
     #fitgaus([responses[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'responses'+str(mintpt)+str(mintpt+180),'Offsets (reconstructed jet pT - truth jet pT)',legend)
+
+import json
+with open(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_offset_means.json','w') as f:
+  json.dump(offset_means,f)
+with open(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_offset_sigmas.json','w') as f:
+  json.dump(offset_sigmas,f)
+with open(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_response_means.json','w') as f:
+  json.dump(response_means,f)
+with open(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_response_sigmas.json','w') as f:
+  json.dump(response_sigmas,f)
