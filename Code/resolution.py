@@ -20,6 +20,7 @@ events = np.load(options.inputData+'/'+options.events)
 all_particles = np.load(options.inputData+'/'+options.inputParticles)
 
 efficiencies = []
+fake_rates = []
 multiple_matches_rates = []
 jetpts = []
 tjetpts = []
@@ -59,6 +60,17 @@ for jet_filename,tjet_filename,event,particles in zip(jet_filenames,tjet_filenam
   multiple_matches_rate = float(len([j for j in range(len(jets)) if len(tjet_matches[j])>1]))/len(jets)
   efficiencies.append(efficiency)
   multiple_matches_rates.append(multiple_matches_rate)
+  fake_rate = 0
+  for jet_index,jet in enumerate(jets):
+    tjets_matched = [tjets[m] for m in tjet_matches[jet_index]]
+    if len(tjets_matched)>0:
+      if max([tjet['pt'] for tjet in tjets_matched])>20: continue
+    if jet['pt']<20: continue
+    fake_rate+=1
+  fake_rate = float(fake_rate)/len([jet for jet in jets if jet['pt']>20])
+  #print fake_rate
+  fake_rates.append(fake_rate)
+      
   #print efficiencies
   #print multiple_matches_rate
 
@@ -74,9 +86,10 @@ for jet_filename,tjet_filename,event,particles in zip(jet_filenames,tjet_filenam
     offsets.append(jetpt-tjetpt)
     responses.append(jetpt/tjetpt)
 
-np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_efficiencies.npy',np.array(efficiencies))
-np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_multiple_matches.npy',np.array(multiple_matches_rates))
-np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_jetpts.npy',np.array(jetpts))
-np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_tjetpts.npy',np.array(tjetpts))
-np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_offsets.npy',np.array(offsets))
-np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_responses.npy',np.array(responses))
+#np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_efficiencies.npy',np.array(efficiencies))
+np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_fake_rates.npy',np.array(fake_rates))
+#np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_multiple_matches.npy',np.array(multiple_matches_rates))
+#np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_jetpts.npy',np.array(jetpts))
+#np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_tjetpts.npy',np.array(tjetpts))
+#np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_offsets.npy',np.array(offsets))
+#np.save(options.submitDir+'/'+options.inputJets+'_x'+str(options.x)+'_responses.npy',np.array(responses))
