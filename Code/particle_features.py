@@ -36,7 +36,7 @@ debug = options.debug
 # tjet_vars.npy:
 # The same as jet_vars.npy, but this time jet finding was only run on particles with 'truth'==1.
 
-#event_vars = numpy.load("../Data/event_vars.npy")
+event_vars = numpy.load("../Data/event_vars.npy")
 particle_vars = numpy.load("../Data/particle_vars.npy")
 all_tjet_matches = numpy.load("../Output/tjet_matches.npy")
 #sjet_vars = numpy.load("../Data/sjet_vars.npy")
@@ -74,10 +74,12 @@ for i, particles in enumerate(particle_vars):
     particle['y']=y(particle['eta'],particle['m'],particle['pt']) #saves calculation later
 
 import pdb
-for i, (particles, tjet_matches) in enumerate(zip(particle_vars,all_tjet_matches)):
+for i, (particles, tjet_matches, event) in enumerate(zip(particle_vars,all_tjet_matches,event_vars)):
   if not i==eventNum: continue
   jets = numpy.load("../Data/jet_vars/our_jet_vars_"+str(i)+".npy")[0] #only look at particles within high pT jets
   newparticles = []
+  rho = event[1]
+  sigma_rho = event[2]
   for jet_index,tjet_index in tjet_matches:
     jet = jets[jet_index]
     #print jet
@@ -90,6 +92,17 @@ for i, (particles, tjet_matches) in enumerate(zip(particle_vars,all_tjet_matches
       newparticle['eta'] = particle['eta']
       newparticle['phi'] = particle['phi']
       newparticle['1'] = 1 #constant term
+
+      newparticle['rho'] = rho 
+      for rhomin in numpy.linspace(20,50,4):
+          rhofeature = 'rhogt'+str(int(rhomin))
+          newparticle[rhofeature] = int(rho>rhomin)
+
+      newparticle['sigmarho'] = sigma_rho 
+      for sigmarhomin in numpy.linspace(2,10,5):
+          sigmarhofeature = 'sigmarhogt'+str(int(sigmarhomin))
+          newparticle[sigmarhofeature] = int(sigma_rho>sigmarhomin)
+
       pt = particle['pt']
       newparticle['pt'] = pt
       for ptmin in numpy.linspace(0.5,5.0,10):
@@ -169,6 +182,5 @@ for i, (particles, tjet_matches) in enumerate(zip(particle_vars,all_tjet_matches
       #features.sort()
       #for k in features: print k,newparticle[k]
 
-#print newparticles 
 
 numpy.save("../Data/particle_features_tjets/particle_features_"+str(eventNum)+".npy", newparticles) 
