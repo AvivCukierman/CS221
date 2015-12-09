@@ -6,7 +6,7 @@ import json
 parser = OptionParser()
 parser.add_option("-e", "--events",type=int, help='How many events to do for training and testing', default=10)
 parser.add_option("-i", "--iterations",type=int, help='How many iterations to do SGD', default=10)
-parser.add_option("-x", "--hs_factor",type=int, help='How much more we care about getting HS wrong than PU', default=200)
+parser.add_option("-x", "--hs_factor",type=float, help='How much more we care about getting HS wrong than PU', default=200)
 parser.add_option("-d", "--debug", action="store_true", default=False)
 options, args = parser.parse_args()
 
@@ -40,11 +40,11 @@ debug = options.debug
 # The same as jet_vars.npy, but this time jet finding was only run on particles with 'truth'==1.
 
 #event_vars = numpy.load("../Data/event_vars.npy")
-particle_vars = numpy.load("../Data/particle_vars.npy")
+#particle_vars = numpy.load("../Data/particle_vars.npy")
 #sjet_vars = numpy.load("../Data/sjet_vars.npy")
 #tjet_vars = numpy.load("../Data/tjet_vars.npy")
 
-if debug: print len(particle_vars)
+#if debug: print len(particle_vars)
 
 def dotProduct(v1,v2):
   result = 0
@@ -53,59 +53,72 @@ def dotProduct(v1,v2):
   return result
 
 def SGDupdate(w,eta,y,phi):
-  extra_penalty = 0.1
-  if y==1: extra_penalty*=options.hs_factor
+  if y==1: eta*=options.hs_factor
   for k in phi.keys():
-    w[k] += eta*y*extra_penalty*phi[k]
+    w[k] += eta*y*phi[k]
 
-with open('feature_normalization.json') as f:
+with open('feature_normalization_tjets.json') as f:
   norm = json.load(f) 
 features = norm.keys()
 w = {k:0 for k in features}
 
 import pdb
 for it in range(options.iterations):
-  eta = 20./numEvents/(it+1)
-  for i, particles in enumerate(particle_vars):
-    if i==numEvents: break
-    particles_features = numpy.load("../Data/particle_features/particle_features_"+str(i)+".npy") #only look at particles within high pT jets
+  eta = 2./numEvents/(it+1)
+  #for i, particles in enumerate(particle_vars):
+  for i in range(numEvents):
+    #if i==numEvents: break
+    particles_features = numpy.load("../Data/particle_features_tjets/particle_features_"+str(i)+".npy") #only look at particles within high pT jets
+    if len(particles_features)==0: continue
     trainError = 0
     #print float(len([particle_features for particle_features in particles_features if particles[particle_features['index']]['truth']==1]))/len(particles_features)
     for particle_features in particles_features:
+      y = 1 if particle_features['truth']==1 else -1
       norm_particle_features = {k: float(particle_features[k])/norm[k] for k in features}
-      particle = particles[particle_features['index']]
+      pt = particle_features['pt']
       prediction = dotProduct(w,norm_particle_features)
-      y = 1 if particle['truth']==1 else -1
       margin = prediction*y
       if margin<0: trainError+=1
       #hinge loss
       if margin>1: continue
-      else: SGDupdate(w,eta,y,norm_particle_features)
+      else: SGDupdate(w,pt*eta,y,norm_particle_features)
     trainError = float(trainError)/len(particles_features)
     #print trainError
 
-with open('../Output/weights_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'.json','w') as g:
+with open('../Output/weights_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'_tjets.json','w') as g:
   json.dump(w,g)
 
-print '../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'.txt'
-f = open('../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'.txt','w')
-for i,_ in enumerate(particle_vars):
-  i+=numEvents
-  if i==2*numEvents: break
-  particles = particle_vars[i]
+print '../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'_tjets.txt'
+f = open('../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'_tjets.txt','w')
+for i in range(numEvents,2*numEvents):
+  #particles = particle_vars[i]
 
-  particles_features = numpy.load("../Data/particle_features/particle_features_"+str(i)+".npy") #only look at particles within high pT jets
+  particles_features = numpy.load("../Data/particle_features_tjets/particle_features_"+str(i)+".npy") #only look at particles within high pT jets
+  if len(particles_features)==0: continue
   testError = 0
   truthFraction = 0
   testHSError = 0
   testPUError = 0
+  truthpt = 0
+  totalpt = 0
+  HSpt = 0
+  totalPUpt = 0
+  totalPUptretained = 0
   for particle_features in particles_features:
+    y = 1 if particle_features['truth']==1 else -1
+    pt = particle_features['pt'] 
     norm_particle_features = {k: float(particle_features[k])/norm[k] for k in features}
-    particle = particles[particle_features['index']]
     prediction = dotProduct(w,norm_particle_features)
-    y = 1 if particle['truth']==1 else -1
-    if y>0: truthFraction +=1
     margin = prediction*y
+    if y>0:
+        truthFraction +=1
+        truthpt+=pt
+    if y<0:
+        totalPUpt+=pt
+        if prediction>0: totalPUptretained+=pt
+    if prediction>0:
+        totalpt+=pt
+        if y>0: HSpt+=pt
     if margin<0: 
       testError+=1
       if y>0: testHSError+=1
@@ -115,15 +128,23 @@ for i,_ in enumerate(particle_vars):
   testHSError = float(testHSError)/truthFraction
   testPUError = float(testPUError)/(numParticles - truthFraction)
   truthFraction = float(truthFraction)/numParticles
-  #print "testError:" + str(testError)
-  #print "testHSError:" + str(testHSError)
-  #print "testPUError:" + str(testPUError)
-  #print "truthFraction:" + str(truthFraction)
-  #print '\n'
+  totalpt /= truthpt
+  HSpt /= truthpt
+  print "testError:" + str(testError)
+  print "testHSError:" + str(testHSError)
+  print "testPUError:" + str(testPUError)
+  print "truthFraction:" + str(truthFraction)
+  print "response:" + str(totalpt)
+  print "HS retained:" + str(HSpt)
+  print "PU retained:" + str(totalPUptretained/totalPUpt)
+  print '\n'
 
   f.write('testError:' + str(testError)+'\n')
   f.write('testHSError:' + str(testHSError)+'\n')
   f.write('testPUError:' + str(testPUError)+'\n')
-  f.write('truthFraction:' + str(truthFraction)+'\n'+'\n')
+  f.write('truthFraction:' + str(truthFraction)+'\n')
+  f.write('response:' + str(totalpt)+'\n')
+  f.write('HS retained:' + str(HSpt)+'\n')
+  f.write('PU retained:' + str(totalPUptretained/totalPUpt)+'\n\n')
 
 f.close()

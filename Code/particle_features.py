@@ -38,6 +38,7 @@ debug = options.debug
 
 #event_vars = numpy.load("../Data/event_vars.npy")
 particle_vars = numpy.load("../Data/particle_vars.npy")
+all_tjet_matches = numpy.load("../Output/tjet_matches.npy")
 #sjet_vars = numpy.load("../Data/sjet_vars.npy")
 #tjet_vars = numpy.load("../Data/tjet_vars.npy")
 
@@ -73,27 +74,49 @@ for i, particles in enumerate(particle_vars):
     particle['y']=y(particle['eta'],particle['m'],particle['pt']) #saves calculation later
 
 import pdb
-for i, particles in enumerate(particle_vars):
+for i, (particles, tjet_matches) in enumerate(zip(particle_vars,all_tjet_matches)):
   if not i==eventNum: continue
   jets = numpy.load("../Data/jet_vars/our_jet_vars_"+str(i)+".npy")[0] #only look at particles within high pT jets
   newparticles = []
-  for jet in jets:
+  for jet_index,tjet_index in tjet_matches:
+    jet = jets[jet_index]
     #print jet
-    if jet['pt']<20: continue
     if len(jet['particle_indices'])==0: continue
     for particle_index in jet['particle_indices']:
       particle = particles[particle_index]
       newparticle = {'index':particle_index}
 
+      newparticle['truth'] = particle['truth']
       newparticle['eta'] = particle['eta']
       newparticle['phi'] = particle['phi']
+      newparticle['1'] = 1 #constant term
+      pt = particle['pt']
+      newparticle['pt'] = pt
+      for ptmin in numpy.linspace(0.5,5.0,10):
+          ptfeature = 'ptgt'+str(int(ptmin*10))
+          newparticle[ptfeature] = int(pt>ptmin)
 
       jet['y']=y(jet['eta'],jet['m'],jet['pt'])
-      newparticle['jetpt']=jet['pt']
-      newparticle['drjet']=math.sqrt(deltaIJSquared(jet,particle))
+
+      jetpt = jet['pt']
+      newparticle['jetpt']=jetpt
+      for ptmin in numpy.linspace(40,100,4):
+          ptfeature = 'jetptgt'+str(int(ptmin))
+          newparticle[ptfeature] = int(jetpt>ptmin)
+
+      drjet = math.sqrt(deltaIJSquared(jet,particle))
+      newparticle['drjet']=drjet
+      for drjetmin in numpy.linspace(0.1,0.3,3):
+          drjetfeature = 'drjetgt'+str(int(drjetmin*10))
+          newparticle[drjetfeature] = int(drjet>drjetmin)
+
+      fracjetpt=particle['pt']/jet['pt']
+      newparticle['fracjetpt'] = fracjetpt
+      for fracmin in numpy.linspace(0.2,0.8,4):
+          fracptfeature = 'fracjetptgt'+str(int(fracmin*10))
+          newparticle[fracptfeature] = int(fracjetpt>fracmin)
 
       for rmin in numpy.linspace(0.1,0.4,4): 
-
         sumpt=0
         sumchargept = 0
         sumtruthchargept = 0
@@ -134,7 +157,7 @@ for i, particles in enumerate(particle_vars):
             dr = math.sqrt(phidiff**2+ydiff**2)
             if dr>rmin and dr<rmax:
               puppi+=p['pt']/dr
-              print dr,p['pt'],rmin,rmax,i
+              #print dr,p['pt'],rmin,rmax,i
           featurename = 'puppi'+str(int(rmin*10))+str(int(rmax*10))
           newparticle[featurename] = puppi
           alphapuppi = math.log(puppi) if puppi>0 else -float('Inf')
@@ -142,11 +165,10 @@ for i, particles in enumerate(particle_vars):
             newparticle['alpha'+featurename+'gt'+str(int(alphamin))] = int(alphapuppi>alphamin)
 
       newparticles.append(newparticle)
-      features = newparticle.keys()
-      features.sort()
-      for k in features: print k,newparticle[k]
-      break
+      #features = newparticle.keys()
+      #features.sort()
+      #for k in features: print k,newparticle[k]
 
 #print newparticles 
 
-#numpy.save("../Data/particle_features/particle_features_"+str(eventNum)+".npy", newparticles) 
+numpy.save("../Data/particle_features_tjets/particle_features_"+str(eventNum)+".npy", newparticles) 
