@@ -22,7 +22,6 @@
 
 INDEX=$((SGE_TASK_ID-1))
 
-python anti-kt.py -a -e $INDEX
-python anti-kt.py -t -a -e $INDEX
+python particle_features.py -e $INDEX
 
 #echo $INDEX
