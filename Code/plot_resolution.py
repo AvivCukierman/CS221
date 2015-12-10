@@ -8,18 +8,18 @@ parser = OptionParser()
 # job configuration
 parser.add_option("--plotDir", help="dir to store the output", default="../Plots")
 parser.add_option("--inputDir", help="dir where input is coming from", default="../Output")
-parser.add_option("--jets", help="jetname", default="binary_classifier_jet_vars")
+parser.add_option("--jets", help="jetname", default="binary_classifier_tjet_vars")
 parser.add_option("--x", help="HS factor", default=1)
-parser.add_option("--inputEfficiencies", help="input file containing jet reconstruction efficiences", default="efficiencies.npy")
+#parser.add_option("--inputEfficiencies", help="input file containing jet reconstruction efficiences", default="efficiencies.npy")
 parser.add_option("--inputTJetPts", help="input file containing truth jet pTs", default="tjetpts.npy")
-parser.add_option("--inputMultiples", help="input file containing rates of multiple jet matches", default="multiple_matches.npy")
+#parser.add_option("--inputMultiples", help="input file containing rates of multiple jet matches", default="multiple_matches.npy")
 parser.add_option("--inputOffsets", help="input file containing jet reconstruction offsets", default="offsets.npy")
 parser.add_option("--inputResponses", help="input file containing jet reconstruction responses", default="responses.npy")
 
 (options, args) = parser.parse_args()
 
-efficiencies = np.load(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_'+options.inputEfficiencies)
-multiples = np.load(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_'+options.inputMultiples)
+#efficiencies = np.load(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_'+options.inputEfficiencies)
+#multiples = np.load(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_'+options.inputMultiples)
 offsets = np.load(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_'+options.inputOffsets)
 responses = np.load(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_'+options.inputResponses)
 tjetpts = np.load(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_'+options.inputTJetPts)
@@ -32,9 +32,9 @@ def fitgaus(data,var,label,legend):
     #data = array([ll for ll in l if ll<m+4*s])
     fig, ax = plt.subplots()
     if 'offsets' in var: binsize = 2.0
-    else: binsize = 0.1
+    else: binsize = 0.05
     n,bins,patches = ax.hist(data,normed=True,bins = (max(data)-min(data))/binsize+1)
-    if 'offsets' in var: binsize = 2.0
+    if 'offsets' in var: binsize = 0.2
     else: binsize = 0.01
     n,bins,patches = ax.hist(data,normed=True,bins = (max(data)-min(data))/binsize+1, alpha=0)
     gfunc = norm
@@ -45,17 +45,17 @@ def fitgaus(data,var,label,legend):
     ax.set_ylabel('a.u.')
     ax.text(0.4, 0.95, legend, fontsize=16, verticalalignment='top', horizontalalignment='left', transform=fig.gca().transAxes)
     if 'offsets' in var:
-      ax.set_xlim(-5,40)
-      ax.set_ylim(0,.12)
+      ax.set_xlim(-20,20)
+      ax.set_ylim(0,.2)
     else:
-      ax.set_xlim(0.8,2.5)
-      ax.set_ylim(0,5)
+      ax.set_xlim(0.5,1.5)
+      ax.set_ylim(0,7)
     print sigma,var
     fig.savefig(options.plotDir+'/'+var+'_hist.png')
     plt.close()
     return mu,sigma
 
-ptbins = range(10,200,10)
+ptbins = range(20,200,10)
 offset_means = {p:0 for p in ptbins}
 offset_sigmas = {p:0 for p in ptbins}
 response_means = {p:0 for p in ptbins}
