@@ -86,8 +86,9 @@ def makejets(hs_factor,event,weighted):
     tjet_matches = numpy.load('../Output/tjet_matches.npy')[event]
     jet_vars = numpy.load('../Data/jet_vars/our_jet_vars_'+str(event)+'.npy')[0]
     tjet_vars = numpy.load('../Data/tjet_vars/our_tjet_vars_'+str(event)+'.npy')[0]
-    with open('../Output/weights_e200_i10_x'+str(hs_factor)+'_tjets.json') as file:
-        w = json.load(file)
+    if hs_factor>0:
+      with open('../Output/weights_e200_i10_x'+str(hs_factor)+'_tjets.json') as file:
+          w = json.load(file)
     particles_features = numpy.load("../Data/particle_features_tjets/particle_features_"+str(event)+".npy") #only look at particles within high pT jets
 
     ghost_pt = 1e-100
@@ -114,7 +115,10 @@ def makejets(hs_factor,event,weighted):
           if index not in indices: continue
           norm_particle_features = {k: float(particle_features[k])/norm[k] for k in features}
           particle = particles[index]
-          prediction = dotProduct(w,norm_particle_features)
+          if hs_factor>0:
+            prediction = dotProduct(w,norm_particle_features)
+          else:
+            prediction = 1
 
           newparticle = particle
           newparticle['index'] = index 
@@ -125,6 +129,7 @@ def makejets(hs_factor,event,weighted):
           new_particles.append(newparticle)
 
         newjet = combine_all(new_particles)
+        print newjet,jet
         tjet = tjet_vars[tjet_index]
 
         jetpts.append(newjet['pt'])
