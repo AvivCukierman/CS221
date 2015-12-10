@@ -33,7 +33,6 @@ def makejets(hs_factor,event,weighted):
 
   ghost_pt = 1e-100
 
-
   for i, particles in enumerate(particle_vars):
     if i!=event: continue 
     particles_features = numpy.load("../Data_notDropBox/particle_features/particle_features_"+str(i)+".npy") #only look at particles within high pT jets
@@ -72,16 +71,16 @@ def makejets(hs_factor,event,weighted):
     testHSError = float(testHSError)/truthFraction
     testPUError = float(testPUError)/(numParticles - truthFraction)
     truthFraction = float(truthFraction)/numParticles
-    print "testError:" + str(testError)
-    print "testHSError:" + str(testHSError)
-    print "testPUError:" + str(testPUError)
-    print "truthFraction:" + str(truthFraction)
+    #print "testError:" + str(testError)
+    #print "testHSError:" + str(testHSError)
+    #print "testPUError:" + str(testPUError)
+    #print "truthFraction:" + str(truthFraction)
 
     jets = antikt_algorithm(new_particles,area=False)
 
     if weighted: outfilename = '../Data/weighted_classifier_jet_vars/jet_vars_'+str(event)+'_x'+str(hs_factor)+'.npy'
     else: outfilename = '../Data/binary_classifier_jet_vars/jet_vars_'+str(event)+'_x'+str(hs_factor)+'.npy'
-    print outfilename
+    #print outfilename
     numpy.save(outfilename,jets)
 
 makejets(options.hs_factor,options.event,options.weighted)
