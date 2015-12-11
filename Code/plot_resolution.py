@@ -55,28 +55,29 @@ def fitgaus(data,var,label,legend):
     plt.close()
     return mu,sigma
 
-ptbins = range(20,200,10)
+ptbinsize = 10
+ptbins = range(20,200,ptbinsize)
 offset_means = {p:0 for p in ptbins}
 offset_sigmas = {p:0 for p in ptbins}
 response_means = {p:0 for p in ptbins}
 response_sigmas = {p:0 for p in ptbins}
 for mintpt in ptbins:
 #for mintpt in [20]:
-  indices = [i for i,tpt in enumerate(tjetpts) if mintpt<tpt and mintpt+10>tpt]
+  indices = [i for i,tpt in enumerate(tjetpts) if mintpt<tpt and mintpt+ptbinsize>tpt]
   #indices = [i for i,tpt in enumerate(tjetpts) if mintpt<tpt and mintpt+180>tpt]
-  legend = str(mintpt)+' GeV < truth jet pT < '+ str(mintpt+10)+ ' GeV'
+  legend = str(mintpt)+' GeV < truth jet pT < '+ str(mintpt+ptbinsize)+ ' GeV'
   if len(indices)>0:
-    (offset_means[mintpt],offset_sigmas[mintpt])=fitgaus([offsets[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'offsets'+str(mintpt)+str(mintpt+10),'Offsets (reconstructed jet pT - truth jet pT)',legend)
-    (response_means[mintpt],response_sigmas[mintpt])=fitgaus([responses[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'responses'+str(mintpt)+str(mintpt+10),'Response (reconstructed jet pT / truth jet pT)',legend)
+    (offset_means[mintpt],offset_sigmas[mintpt])=fitgaus([offsets[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'offsets'+str(mintpt)+str(mintpt+ptbinsize),'Offsets (reconstructed jet pT - truth jet pT)',legend)
+    (response_means[mintpt],response_sigmas[mintpt])=fitgaus([responses[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'responses'+str(mintpt)+str(mintpt+ptbinsize),'Response (reconstructed jet pT / truth jet pT)',legend)
     #fitgaus([offsets[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'offsets'+str(mintpt)+str(mintpt+180),'Offsets (reconstructed jet pT - truth jet pT)',legend)
     #fitgaus([responses[index] for index in indices],options.jets+'_'+str(options.x)+'_'+'responses'+str(mintpt)+str(mintpt+180),'Offsets (reconstructed jet pT - truth jet pT)',legend)
 
 import json
-with open(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_offset_means.json','w') as f:
+with open(options.inputDir+'/'+options.jets+'_ptbins'+str(ptbinsize)+'_x'+str(options.x)+'_offset_means.json','w') as f:
   json.dump(offset_means,f)
-with open(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_offset_sigmas.json','w') as f:
+with open(options.inputDir+'/'+options.jets+'_ptbins'+str(ptbinsize)+'_x'+str(options.x)+'_offset_sigmas.json','w') as f:
   json.dump(offset_sigmas,f)
-with open(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_response_means.json','w') as f:
+with open(options.inputDir+'/'+options.jets+'_ptbins'+str(ptbinsize)+'_x'+str(options.x)+'_response_means.json','w') as f:
   json.dump(response_means,f)
-with open(options.inputDir+'/'+options.jets+'_x'+str(options.x)+'_response_sigmas.json','w') as f:
+with open(options.inputDir+'/'+options.jets+'_ptbins'+str(ptbinsize)+'_x'+str(options.x)+'_response_sigmas.json','w') as f:
   json.dump(response_sigmas,f)
