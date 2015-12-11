@@ -2,6 +2,7 @@ import math, numpy, copy, sys
 from optparse import OptionParser
 import operator 
 import json
+import random
 
 parser = OptionParser()
 parser.add_option("-e", "--events",type=int, help='How many events to do for training and testing', default=10)
@@ -63,9 +64,9 @@ def listDotProduct(v1,v2):
 def SGDupdate(eta,y,phi,learnedPhi):
   if y==1: eta*=options.hs_factor
   for m in range(numLearnedFeatures):
-    w[m] += eta*y*learnedPhi[m]
     for k in features:
-        v[m][k] += eta * y * w[m] * phi[k] * (learnedPhi[m] * (1-learnedPhi[m]))
+        v[m][k] += eta * y * w[m] * phi[k] * (learnedPhi[m] * (1-learnedPhi[m]))        
+    w[m] += eta*y*learnedPhi[m]
 
 def sigmoid(z):
     return 1.0/(1+math.exp(-z))
@@ -79,7 +80,7 @@ def learnedFeatures(features):
 with open('feature_normalization_tjets.json') as f:
   norm = json.load(f) 
 features = norm.keys()
-w = [0 for m in range(numLearnedFeatures)]
+w = [random.uniform(0,1) for m in range(numLearnedFeatures)]
 v = [{k:0 for k in features} for m in range(numLearnedFeatures)]
 
 import pdb
