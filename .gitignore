@@ -10,3 +10,4 @@ fastjet-*
 *.bbl
 *.blg
 *.png
+Output/*

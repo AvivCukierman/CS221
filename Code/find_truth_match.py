@@ -10,7 +10,7 @@ parser.add_option("--inputParticles", help="input file containing particle vars"
 parser.add_option("--inputData", help="input folder containing data", default="../Data")
 parser.add_option("--inputJets", help="input folder containing jet vars", default="jet_vars")
 parser.add_option("--inputTJets", help="input folder contaning truth jet vars", default="tjet_vars")
-parser.add_option("--nevents", help="number of events to do", type=int, default=1)
+parser.add_option("--nevents", help="number of events to do", type=int, default=1000)
 
 (options, args) = parser.parse_args()
 
