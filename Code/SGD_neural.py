@@ -8,14 +8,16 @@ import random
 parser = OptionParser()
 parser.add_option("-e", "--events",type=int, help='How many events to do for training and testing', default=10)
 parser.add_option("-i", "--iterations",type=int, help='How many iterations to do SGD', default=10)
-parser.add_option("-x", "--hs_factor",type=float, help='How much more we care about getting HS wrong than PU', default=200)
+parser.add_option("-x", "--hs_factor",type=float, help='How much more we care about getting HS wrong than PU', default=1.0)
 parser.add_option("-d", "--debug", action="store_true", default=False)
 parser.add_option("-n", "--num_learned_features",type=int, help="How many learned features do we want", default=200)
+parser.add_option("-r", "--rectified_linear",action="store_true",default=False, help="Use rectified linear function instead of sigmoid")
 options, args = parser.parse_args()
 
-numEvents = int(options.events)
+numParticles = int(options.events)
 debug = options.debug
 numLearnedFeatures = options.num_learned_features
+rectifiedLinear = options.rectified_linear
 
 # Each file is a numpy array that should have N = 1000 entries, which is the number of events we can use for now
 # 
@@ -66,7 +68,11 @@ def SGDupdate(eta,y,phi,learnedPhi):
   if y==1: eta*=options.hs_factor
   for m in range(numLearnedFeatures):
     for k in features:
-        v[m][k] += eta * y * w[m] * phi[k] * (learnedPhi[m] * (1-learnedPhi[m]))        
+        if rectifiedLinear:
+            if learnedPhi[m] > 0.0:
+                v[m][k] += eta * y * w[m] * phi[k]
+        else:
+            v[m][k] += eta * y * w[m] * phi[k] * (learnedPhi[m] * (1-learnedPhi[m]))
     w[m] += eta*y*learnedPhi[m]
 
 def sigmoid(z):
@@ -78,20 +84,22 @@ def sigmoidDeriv(z):
     return sigmoid(z) * (1 - sigmoid(z))
 
 def learnedFeatures(features):
+    if rectifiedLinear:
+        return [max(dotProduct(v[m], features), 0.0) for m in range(numLearnedFeatures)]
     return [sigmoid(dotProduct(v[m],features)) for m in range(numLearnedFeatures)]
 
 with open('feature_normalization_tjets.json') as f:
   norm = json.load(f) 
 features = norm.keys()
 w = [random.uniform(0,1) for m in range(numLearnedFeatures)]
-v = [{k:0 for k in features} for m in range(numLearnedFeatures)]
+v = [{k:0.0 for k in features} for m in range(numLearnedFeatures)]
 
 count = 0
 for it in range(options.iterations):
-  eta = 2./numEvents/math.sqrt(it+1)
+  eta = 2./numParticles/math.sqrt(it+1)
   #for i, particles in enumerate(particle_vars):
-  for i in range(numEvents):
-    #if i==numEvents: break
+  for i in range(numParticles):
+    #if i==numParticles: break
     particles_features = numpy.load("../Data/particle_features_tjets/particle_features_"+str(i)+".npy") #only look at particles within high pT jets
     if len(particles_features)==0: continue
     trainError = 0
@@ -121,7 +129,7 @@ with open('../Output/weights_e'+str(options.events)+'_i'+str(options.iterations)
   
 print '../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'_n_tjets.txt'
 f = open('../Output/SGD_results_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'_n_tjets.txt','w')
-for i in range(numEvents,2*numEvents):
+for i in range(numParticles,2*numParticles):
   #particles = particle_vars[i]
 
   particles_features = numpy.load("../Data/particle_features_tjets/particle_features_"+str(i)+".npy") #only look at particles within high pT jets

@@ -11,3 +11,4 @@ fastjet-*
 *.blg
 *.png
 Output/*
+*.pkl
