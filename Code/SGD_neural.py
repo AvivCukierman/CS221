@@ -131,7 +131,10 @@ for i in range(numEvents,2*numEvents):
     y = 1 if particle_features['truth']==1 else -1
     pt = particle_features['pt'] 
     norm_particle_features = {k: float(particle_features[k])/norm[k] for k in features}
-    prediction = dotProduct(w,norm_particle_features)
+    
+    learned = learnedFeatures(norm_particle_features)
+    prediction = listDotProduct(w,learned)
+
     margin = prediction*y
     if y>0:
         truthFraction +=1

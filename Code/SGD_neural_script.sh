@@ -23,6 +23,6 @@
 INDEX=$((SGE_TASK_ID-1))
 
 ARRAY=(0.01 0.02 0.05 0.1 0.2 0.5 1.0 2.0 5.0 10.0)
-python SGD_neural.py -e 200 -i 10 -x ${ARRAY[$INDEX]}
+python SGD_neural.py -e 10 -i 10 -x ${ARRAY[$INDEX]}
 
 #echo $INDEX
