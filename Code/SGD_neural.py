@@ -85,7 +85,7 @@ v = [{k:0 for k in features} for m in range(numLearnedFeatures)]
 
 import pdb
 for it in range(options.iterations):
-  eta = 2./numEvents/(it+1)
+  eta = 2./numEvents/math.sqrt(it+1)
   #for i, particles in enumerate(particle_vars):
   for i in range(numEvents):
     #if i==numEvents: break
@@ -93,6 +93,7 @@ for it in range(options.iterations):
     if len(particles_features)==0: continue
     trainError = 0
     #print float(len([particle_features for particle_features in particles_features if particles[particle_features['index']]['truth']==1]))/len(particles_features)
+    allpt = 0
     for particle_features in particles_features:
       y = 1 if particle_features['truth']==1 else -1
       norm_particle_features = {k: float(particle_features[k])/norm[k] for k in features}
@@ -100,12 +101,13 @@ for it in range(options.iterations):
       learned = learnedFeatures(norm_particle_features)
       prediction = listDotProduct(w,learned)
       margin = prediction*y
-      if margin<0: trainError+=1
+      if margin<0: trainError+=pt
+      allpt += pt
       #hinge loss
       if margin>1: continue
       else: SGDupdate(pt*eta,y,norm_particle_features,learned)
-    trainError = float(trainError)/len(particles_features)
-    #print trainError
+    trainError = float(trainError)/allpt
+    if options.debug: print trainError
 
 with open('../Output/weights_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'_nw_tjets.json','w') as g:
   json.dump(w,g)
