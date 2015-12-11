@@ -1,8 +1,0 @@
-testError:0.429133858268
-testHSError:1.0
-testPUError:0.0
-truthFraction:0.429133858268
-response:0.0
-HS retained:0.0
-PU retained:0.0
-
