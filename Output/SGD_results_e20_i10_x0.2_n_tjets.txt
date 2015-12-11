@@ -1,0 +1,160 @@
+testError:0.317757009346
+testHSError:0.523076923077
+testPUError:0.0
+truthFraction:0.607476635514
+response:0.863735606246
+HS retained:0.863735606246
+PU retained:0.0
+
+testError:0.316017316017
+testHSError:0.712871287129
+testPUError:0.00769230769231
+truthFraction:0.437229437229
+response:0.666541625994
+HS retained:0.651008237172
+PU retained:0.0705830482072
+
+testError:0.394230769231
+testHSError:0.602941176471
+testPUError:0.0
+truthFraction:0.653846153846
+response:0.856429319245
+HS retained:0.856429319245
+PU retained:0.0
+
+testError:0.10989010989
+testHSError:0.4
+testPUError:0.0
+truthFraction:0.274725274725
+response:0.935588677377
+HS retained:0.935588677377
+PU retained:0.0
+
+testError:0.336734693878
+testHSError:0.680412371134
+testPUError:0.0
+truthFraction:0.494897959184
+response:0.788558576541
+HS retained:0.788558576541
+PU retained:0.0
+
+testError:0.349397590361
+testHSError:0.617021276596
+testPUError:0.0
+truthFraction:0.566265060241
+response:0.849363709031
+HS retained:0.849363709031
+PU retained:0.0
+
+testError:0.175
+testHSError:0.636363636364
+testPUError:0.0
+truthFraction:0.275
+response:0.845467132664
+HS retained:0.845467132664
+PU retained:0.0
+
+testError:0.284153005464
+testHSError:0.597701149425
+testPUError:0.0
+truthFraction:0.475409836066
+response:0.890273335737
+HS retained:0.890273335737
+PU retained:0.0
+
+testError:0.207547169811
+testHSError:0.477272727273
+testPUError:0.0161290322581
+truthFraction:0.415094339623
+response:0.928664309365
+HS retained:0.907489289773
+PU retained:0.127426485886
+
+testError:0.31067961165
+testHSError:0.533333333333
+testPUError:0.0
+truthFraction:0.582524271845
+response:0.870654792804
+HS retained:0.870654792804
+PU retained:0.0
+
+testError:0.202380952381
+testHSError:0.459459459459
+testPUError:0.0
+truthFraction:0.440476190476
+response:0.940597742621
+HS retained:0.940597742621
+PU retained:0.0
+
+testError:0.24358974359
+testHSError:0.558823529412
+testPUError:0.0
+truthFraction:0.435897435897
+response:0.87260316457
+HS retained:0.87260316457
+PU retained:0.0
+
+testError:0.271341463415
+testHSError:0.63309352518
+testPUError:0.00529100529101
+truthFraction:0.423780487805
+response:0.815290452196
+HS retained:0.812021078461
+PU retained:0.0221425731317
+
+testError:0.207317073171
+testHSError:0.417721518987
+testPUError:0.0117647058824
+truthFraction:0.481707317073
+response:0.964737885662
+HS retained:0.960817800402
+PU retained:0.084235792977
+
+testError:0.325153374233
+testHSError:0.676056338028
+testPUError:0.054347826087
+truthFraction:0.435582822086
+response:0.926803524918
+HS retained:0.850243391254
+PU retained:0.295126274889
+
+testError:0.368421052632
+testHSError:0.660869565217
+testPUError:0.0106382978723
+truthFraction:0.55023923445
+response:0.827351178608
+HS retained:0.819524239463
+PU retained:0.0716902693246
+
+testError:0.257352941176
+testHSError:0.657142857143
+testPUError:0.0059880239521
+truthFraction:0.386029411765
+response:0.764213174008
+HS retained:0.744936481156
+PU retained:0.0682143142075
+
+testError:0.261904761905
+testHSError:0.564102564103
+testPUError:0.0
+truthFraction:0.464285714286
+response:0.892038067119
+HS retained:0.892038067119
+PU retained:0.0
+
+testError:0.307692307692
+testHSError:0.714285714286
+testPUError:0.0
+truthFraction:0.430769230769
+response:0.820693700764
+HS retained:0.820693700764
+PU retained:0.0
+
+testError:0.139784946237
+testHSError:0.541666666667
+testPUError:0.0
+truthFraction:0.258064516129
+response:0.933657953902
+HS retained:0.933657953902
+PU retained:0.0
+
