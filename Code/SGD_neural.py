@@ -2,6 +2,7 @@ import math, numpy, copy, sys
 from optparse import OptionParser
 import operator 
 import json
+import pdb
 import random
 
 parser = OptionParser()
@@ -69,7 +70,9 @@ def SGDupdate(eta,y,phi,learnedPhi):
     w[m] += eta*y*learnedPhi[m]
 
 def sigmoid(z):
-    return 1.0/(1+math.exp(-z))
+    if z > -500:
+        return 1.0/(1+math.exp(-z))
+    return 0.0
 
 def sigmoidDeriv(z):
     return sigmoid(z) * (1 - sigmoid(z))
@@ -83,7 +86,7 @@ features = norm.keys()
 w = [random.uniform(0,1) for m in range(numLearnedFeatures)]
 v = [{k:0 for k in features} for m in range(numLearnedFeatures)]
 
-import pdb
+count = 0
 for it in range(options.iterations):
   eta = 2./numEvents/math.sqrt(it+1)
   #for i, particles in enumerate(particle_vars):
@@ -107,7 +110,9 @@ for it in range(options.iterations):
       if margin>1: continue
       else: SGDupdate(pt*eta,y,norm_particle_features,learned)
     trainError = float(trainError)/allpt
-    if options.debug: print trainError
+    if options.debug:
+        print count + ": " + trainError
+        count += 1
 
 with open('../Output/weights_e'+str(options.events)+'_i'+str(options.iterations)+'_x'+str(options.hs_factor)+'_nw_tjets.json','w') as g:
   json.dump(w,g)
