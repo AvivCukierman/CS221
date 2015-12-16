@@ -25,6 +25,8 @@ def weight(z):
 
 with open('feature_normalization_tjets_categories.json') as f:
   norm = json.load(f) 
+norm = norm['pt']
+norm['1']=1
 features = norm.keys()
 
 #particle_vars = numpy.load("../Data/particle_vars.npy")
@@ -41,8 +43,8 @@ def makejets(hs_factor,event,weighted):
         norm_particle_features = {k: float(particle_features[k])/norm[k] for k in features}
         if hs_factor>0:
           prediction = dotProduct(w,norm_particle_features)
+        print particle_features['pt'],weight(prediction)
 
-    print particle_features['pt'],prediction
 
     return 
 
