@@ -9,6 +9,7 @@ parser.add_option("-s", "--start_event",type=int, help='Which event to start on'
 parser.add_option("-e", "--end_event",type=int, help='Which event to end on', default=201)
 parser.add_option('-w', action='store_true', default=False, dest='weighted',help = 'Use weighted classification as opposed to binary classification')
 parser.add_option("-x", "--hs_factor",type=float, help='How much more we value identifying HS correctly than PU (hyperparameter)', default=1.0)
+parser.add_option("--sub",action="store_true", help='Use subtracted jets (use with x = 0.0)', default=False)
 parser.add_option( "--submitDir",type=str, help='Where to store the output', default='../Output')
 options, args = parser.parse_args()
 
@@ -90,6 +91,9 @@ def makejets(hs_factor,event,weighted):
       with open('../Output/weights_e200_i10_x'+str(hs_factor)+'_tjets.json') as file:
           w = json.load(file)
     particles_features = numpy.load("../Data/particle_features_tjets/particle_features_"+str(event)+".npy") #only look at particles within high pT jets
+    if options.sub:
+        event_vars = numpy.load("../Data/event_vars.npy")[event]
+        rho = event_vars[1]
 
     ghost_pt = 1e-100
 
@@ -118,7 +122,8 @@ def makejets(hs_factor,event,weighted):
           if hs_factor>0:
             prediction = dotProduct(w,norm_particle_features)
           else:
-            prediction = 1
+              if not weighted: prediction = 1
+              else: prediction = 1 if particle['truth']==1 else -1
 
           newparticle = particle
           newparticle['index'] = index 
@@ -129,8 +134,10 @@ def makejets(hs_factor,event,weighted):
           new_particles.append(newparticle)
 
         newjet = combine_all(new_particles)
-        print newjet,jet
+        if options.sub:
+            newjet['pt'] -= jet['area']*rho
         tjet = tjet_vars[tjet_index]
+        print newjet['pt'],tjet['pt']
 
         jetpts.append(newjet['pt'])
         tjetpts.append(tjet['pt'])
@@ -175,6 +182,7 @@ for event in range(options.start_event,options.end_event):
 
 if options.weighted: filename = 'weighted_classifier_tjet_vars' 
 else: filename = 'binary_classifier_tjet_vars'
+if options.sub: filename+='_sub'
 
 print options.submitDir+'/'+filename+'_x'+str(options.hs_factor)+'_jetpts.npy'
 numpy.save(options.submitDir+'/'+filename+'_x'+str(options.hs_factor)+'_jetpts.npy',numpy.array(jetpts))
